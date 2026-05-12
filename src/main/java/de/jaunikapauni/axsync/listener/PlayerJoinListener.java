@@ -7,6 +7,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -27,7 +28,7 @@ public class PlayerJoinListener implements Listener {
                 ps.setString(1, p.getUniqueId().toString());
                 ResultSet rs = ps.executeQuery();
                 if(!rs.next()){
-                    try(PreparedStatement fillTable = conn.prepareStatement("INSERT INTO playerdata (uuid, health, foodlevel, gamemode, saturation, level, progress, airlevel) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")){
+                    try(PreparedStatement fillTable = conn.prepareStatement("INSERT INTO playerdata (uuid, health, foodlevel, gamemode, saturation, level, progress, airlevel, inventory, enderchest) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){
                         fillTable.setString(1, p.getUniqueId().toString());
                         fillTable.setDouble(2, p.getHealth());
                         fillTable.setInt(3, p.getFoodLevel());
@@ -36,8 +37,12 @@ public class PlayerJoinListener implements Listener {
                         fillTable.setInt(6, p.getLevel());
                         fillTable.setFloat(7, p.getExp());
                         fillTable.setInt(8, p.getRemainingAir());
+                        fillTable.setString(9, reference.getPlayerManager().serializeInventory(p.getInventory()));
+                        fillTable.setString(10, reference.getPlayerManager().serializeInventory(p.getEnderChest()));
                         fillTable.executeUpdate();
                         p.sendMessage("Playerdata were created!");
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
                     }
                 } else {
                     double health = rs.getDouble("health");
@@ -47,6 +52,8 @@ public class PlayerJoinListener implements Listener {
                     int level = rs.getInt("level");
                     float progress = rs.getFloat("progress");
                     int airlevel = rs.getInt("airlevel");
+                    reference.getPlayerManager().loadPlayerInventory(p);
+                    reference.getPlayerManager().loadPlayerEnderChest(p);
                     p.setHealth(health);
                     p.setFoodLevel(foodlevel);
                     p.setGameMode(GameMode.valueOf(gameMode));
@@ -54,7 +61,7 @@ public class PlayerJoinListener implements Listener {
                     p.setLevel(level);
                     p.setExp(progress);
                     p.setRemainingAir(airlevel);
-                    p.sendMessage("Your health, foodlevel, gamemode, saturation, experience and airlevel were loaded!");
+                    p.sendMessage("Your health, foodlevel, gamemode, saturation, experience, airlevel, inventory and enderchest were loaded!");
                 }
             }
         } catch (SQLException ex) {

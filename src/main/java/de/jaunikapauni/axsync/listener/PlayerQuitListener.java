@@ -22,5 +22,7 @@ public class PlayerQuitListener implements Listener {
         reference.getPlayerManager().setPlayerSaturation(p);
         reference.getPlayerManager().setPlayerExperience(p);
         reference.getPlayerManager().setPlayerAirLevel(p);
+        reference.getPlayerManager().setPlayerInventory(p);
+        reference.getPlayerManager().setPlayerEnderChest(p);
     }
 }
