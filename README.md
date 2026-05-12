@@ -29,3 +29,6 @@ database:
   database: axsync
   username: root
   password:
+```
+## License
+AxSync is licensed under the permissive MIT License. Please see [LICENSE](https://github.com/JauniKapauni/AxSync/blob/main/LICENSE) for more info.
