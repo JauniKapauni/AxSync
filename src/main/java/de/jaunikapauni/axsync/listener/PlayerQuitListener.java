@@ -21,5 +21,6 @@ public class PlayerQuitListener implements Listener {
         reference.getPlayerManager().setPlayerGameMode(p);
         reference.getPlayerManager().setPlayerSaturation(p);
         reference.getPlayerManager().setPlayerExperience(p);
+        reference.getPlayerManager().setPlayerAirLevel(p);
     }
 }

@@ -27,7 +27,7 @@ public class PlayerJoinListener implements Listener {
                 ps.setString(1, p.getUniqueId().toString());
                 ResultSet rs = ps.executeQuery();
                 if(!rs.next()){
-                    try(PreparedStatement fillTable = conn.prepareStatement("INSERT INTO playerdata (uuid, health, foodlevel, gamemode, saturation, level, progress) VALUES (?, ?, ?, ?, ?, ?, ?)")){
+                    try(PreparedStatement fillTable = conn.prepareStatement("INSERT INTO playerdata (uuid, health, foodlevel, gamemode, saturation, level, progress, airlevel) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")){
                         fillTable.setString(1, p.getUniqueId().toString());
                         fillTable.setDouble(2, p.getHealth());
                         fillTable.setInt(3, p.getFoodLevel());
@@ -35,6 +35,7 @@ public class PlayerJoinListener implements Listener {
                         fillTable.setFloat(5, p.getSaturation());
                         fillTable.setInt(6, p.getLevel());
                         fillTable.setFloat(7, p.getExp());
+                        fillTable.setInt(8, p.getRemainingAir());
                         fillTable.executeUpdate();
                         p.sendMessage("Playerdata were created!");
                     }
@@ -45,13 +46,15 @@ public class PlayerJoinListener implements Listener {
                     float saturation = rs.getFloat("saturation");
                     int level = rs.getInt("level");
                     float progress = rs.getFloat("progress");
+                    int airlevel = rs.getInt("airlevel");
                     p.setHealth(health);
                     p.setFoodLevel(foodlevel);
                     p.setGameMode(GameMode.valueOf(gameMode));
                     p.setSaturation(saturation);
                     p.setLevel(level);
                     p.setExp(progress);
-                    p.sendMessage("Your health, foodlevel, gamemode, saturation, experience were loaded!");
+                    p.setRemainingAir(airlevel);
+                    p.sendMessage("Your health, foodlevel, gamemode, saturation, experience and airlevel were loaded!");
                 }
             }
         } catch (SQLException ex) {

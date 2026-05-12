@@ -74,4 +74,16 @@ public class PlayerManager {
             throw new RuntimeException(e);
         }
     }
+
+    public void setPlayerAirLevel(Player p){
+        try(Connection conn = reference.getDatabaseManager().getConnection()){
+            try(PreparedStatement ps = conn.prepareStatement("UPDATE playerdata SET airlevel = ? WHERE uuid = ?")){
+                ps.setInt(1, p.getRemainingAir());
+                ps.setString(2, p.getUniqueId().toString());
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
