@@ -61,4 +61,17 @@ public class PlayerManager {
             throw new RuntimeException(e);
         }
     }
+
+    public void setPlayerExperience(Player p){
+        try(Connection conn = reference.getDatabaseManager().getConnection()){
+            try(PreparedStatement ps = conn.prepareStatement("UPDATE playerdata SET level = ?, progress = ? WHERE uuid = ?")){
+                ps.setInt(1, p.getLevel());
+                ps.setFloat(2, p.getExp());
+                ps.setString(3, p.getUniqueId().toString());
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

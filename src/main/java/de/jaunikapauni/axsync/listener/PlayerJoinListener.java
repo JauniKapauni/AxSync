@@ -27,12 +27,14 @@ public class PlayerJoinListener implements Listener {
                 ps.setString(1, p.getUniqueId().toString());
                 ResultSet rs = ps.executeQuery();
                 if(!rs.next()){
-                    try(PreparedStatement fillTable = conn.prepareStatement("INSERT INTO playerdata (uuid, health, foodlevel, gamemode, saturation) VALUES (?, ?, ?, ?, ?)")){
+                    try(PreparedStatement fillTable = conn.prepareStatement("INSERT INTO playerdata (uuid, health, foodlevel, gamemode, saturation, level, progress) VALUES (?, ?, ?, ?, ?, ?, ?)")){
                         fillTable.setString(1, p.getUniqueId().toString());
                         fillTable.setDouble(2, p.getHealth());
                         fillTable.setInt(3, p.getFoodLevel());
                         fillTable.setString(4, p.getGameMode().toString());
                         fillTable.setFloat(5, p.getSaturation());
+                        fillTable.setInt(6, p.getLevel());
+                        fillTable.setFloat(7, p.getExp());
                         fillTable.executeUpdate();
                         p.sendMessage("Playerdata were created!");
                     }
@@ -41,11 +43,15 @@ public class PlayerJoinListener implements Listener {
                     int foodlevel = rs.getInt("foodlevel");
                     String gameMode = rs.getString("gamemode");
                     float saturation = rs.getFloat("saturation");
+                    int level = rs.getInt("level");
+                    float progress = rs.getFloat("progress");
                     p.setHealth(health);
                     p.setFoodLevel(foodlevel);
                     p.setGameMode(GameMode.valueOf(gameMode));
                     p.setSaturation(saturation);
-                    p.sendMessage("Your health, foodlevel and gamemode were loaded!");
+                    p.setLevel(level);
+                    p.setExp(progress);
+                    p.sendMessage("Your health, foodlevel, gamemode, saturation, experience were loaded!");
                 }
             }
         } catch (SQLException ex) {
