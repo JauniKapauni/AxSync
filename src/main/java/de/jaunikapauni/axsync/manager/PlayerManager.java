@@ -49,4 +49,16 @@ public class PlayerManager {
             throw new RuntimeException(e);
         }
     }
+
+    public void setPlayerSaturation(Player p){
+        try(Connection conn = reference.getDatabaseManager().getConnection()){
+            try(PreparedStatement ps = conn.prepareStatement("UPDATE playerdata SET saturation = ? WHERE uuid = ?")){
+                ps.setFloat(1, p.getSaturation());
+                ps.setString(2, p.getUniqueId().toString());
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

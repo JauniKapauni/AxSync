@@ -27,11 +27,12 @@ public class PlayerJoinListener implements Listener {
                 ps.setString(1, p.getUniqueId().toString());
                 ResultSet rs = ps.executeQuery();
                 if(!rs.next()){
-                    try(PreparedStatement fillTable = conn.prepareStatement("INSERT INTO playerdata (uuid, health, foodlevel, gamemode) VALUES (?, ?, ?, ?)")){
+                    try(PreparedStatement fillTable = conn.prepareStatement("INSERT INTO playerdata (uuid, health, foodlevel, gamemode, saturation) VALUES (?, ?, ?, ?, ?)")){
                         fillTable.setString(1, p.getUniqueId().toString());
                         fillTable.setDouble(2, p.getHealth());
                         fillTable.setInt(3, p.getFoodLevel());
                         fillTable.setString(4, p.getGameMode().toString());
+                        fillTable.setFloat(5, p.getSaturation());
                         fillTable.executeUpdate();
                         p.sendMessage("Playerdata were created!");
                     }
@@ -39,9 +40,11 @@ public class PlayerJoinListener implements Listener {
                     double health = rs.getDouble("health");
                     int foodlevel = rs.getInt("foodlevel");
                     String gameMode = rs.getString("gamemode");
+                    float saturation = rs.getFloat("saturation");
                     p.setHealth(health);
                     p.setFoodLevel(foodlevel);
                     p.setGameMode(GameMode.valueOf(gameMode));
+                    p.setSaturation(saturation);
                     p.sendMessage("Your health, foodlevel and gamemode were loaded!");
                 }
             }
