@@ -30,5 +30,7 @@ database:
   username: root
   password:
 ```
+## Support
+Discord: [AxForge](https://discord.gg/rYSxV4daS8)
 ## License
 AxSync is licensed under the permissive MIT License. Please see [LICENSE](https://github.com/JauniKapauni/AxSync/blob/main/LICENSE) for more info.
