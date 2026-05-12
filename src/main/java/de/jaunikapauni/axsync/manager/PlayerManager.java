@@ -25,4 +25,16 @@ public class PlayerManager {
             throw new RuntimeException(e);
         }
     }
+
+    public void setPlayerFoodLevel(Player p){
+        try(Connection conn = reference.getDatabaseManager().getConnection()){
+            try(PreparedStatement ps = conn.prepareStatement("UPDATE playerdata SET foodlevel = ? WHERE uuid = ?")){
+                ps.setInt(1, p.getFoodLevel());
+                ps.setString(2, p.getUniqueId().toString());
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

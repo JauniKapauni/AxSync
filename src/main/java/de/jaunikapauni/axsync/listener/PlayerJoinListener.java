@@ -26,16 +26,19 @@ public class PlayerJoinListener implements Listener {
                 ps.setString(1, p.getUniqueId().toString());
                 ResultSet rs = ps.executeQuery();
                 if(!rs.next()){
-                    try(PreparedStatement fillTable = conn.prepareStatement("INSERT INTO playerdata (uuid, health) VALUES (?, ?)")){
+                    try(PreparedStatement fillTable = conn.prepareStatement("INSERT INTO playerdata (uuid, health, foodlevel) VALUES (?, ?, ?)")){
                         fillTable.setString(1, p.getUniqueId().toString());
                         fillTable.setDouble(2, p.getHealth());
+                        fillTable.setInt(3, p.getFoodLevel());
                         fillTable.executeUpdate();
                         p.sendMessage("Playerdata were created!");
                     }
                 } else {
                     double health = rs.getDouble("health");
+                    int foodlevel = rs.getInt("foodlevel");
                     p.setHealth(health);
-                    p.sendMessage("Your health was loaded!");
+                    p.setFoodLevel(foodlevel);
+                    p.sendMessage("Your health and foodlevel were loaded!");
                 }
             }
         } catch (SQLException ex) {
