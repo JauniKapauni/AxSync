@@ -1,6 +1,10 @@
 # AxSync
 > Minecraft Plugin to sync player data between multiple backends
 ---
+## Requirements
+- Minecraft Paper 26.1.2 Server
+- MariaDB / MySQL Server
+---
 ## Features
 - Sync
   - Health
