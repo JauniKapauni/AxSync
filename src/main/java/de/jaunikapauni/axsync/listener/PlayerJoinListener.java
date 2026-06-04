@@ -1,6 +1,7 @@
 package de.jaunikapauni.axsync.listener;
 
 import de.jaunikapauni.axsync.AxSync;
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -40,7 +41,7 @@ public class PlayerJoinListener implements Listener {
                         fillTable.setString(9, reference.getPlayerManager().serializeInventory(p.getInventory()));
                         fillTable.setString(10, reference.getPlayerManager().serializeInventory(p.getEnderChest()));
                         fillTable.executeUpdate();
-                        p.sendMessage("Playerdata were created!");
+                        p.sendActionBar(ChatColor.GREEN + "Playerdata were created!");
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }
@@ -61,7 +62,7 @@ public class PlayerJoinListener implements Listener {
                     p.setLevel(level);
                     p.setExp(progress);
                     p.setRemainingAir(airlevel);
-                    p.sendMessage("Your health, foodlevel, gamemode, saturation, experience, airlevel, inventory and enderchest were loaded!");
+                    p.sendActionBar(ChatColor.GREEN + "Your data was loaded!");
                 }
             }
         } catch (SQLException ex) {
