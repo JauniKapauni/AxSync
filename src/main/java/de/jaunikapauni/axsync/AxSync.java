@@ -24,7 +24,6 @@ public final class AxSync extends JavaPlugin {
     public void onEnable() {
         // Plugin startup logic
         saveDefaultConfig();
-        /*
         try{
             databaseManager = new DatabaseManager(this);
             playerManager = new PlayerManager(this);
@@ -35,7 +34,6 @@ public final class AxSync extends JavaPlugin {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        */
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(this), this);
         getLogger().info("");
