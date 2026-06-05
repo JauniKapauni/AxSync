@@ -36,6 +36,12 @@ public class DatabaseManager {
         return hikari.getConnection();
     }
 
+    public void close(){
+        if(hikari != null && !hikari.isClosed()){
+            hikari.close();
+        }
+    }
+
     public boolean initDatabaseTable1(){
         try(Connection conn = getConnection()){
             try(PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS playerdata (uuid VARCHAR(255), health DOUBLE, foodlevel INT, gamemode ENUM('SURVIVAL', 'CREATIVE', 'ADVENTURE', 'SPECTATOR'), saturation FLOAT, level INT, progress FLOAT, airlevel INT, inventory TEXT, enderchest TEXT)")){

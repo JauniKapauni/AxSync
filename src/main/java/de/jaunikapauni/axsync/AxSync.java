@@ -48,5 +48,6 @@ public final class AxSync extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+        databaseManager.close();
     }
 }
