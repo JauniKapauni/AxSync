@@ -38,6 +38,7 @@ public class PlayerManager {
                 ps.setString(8, inventory);
                 ps.setString(9, enderchest);
                 ps.setString(10, uuid.toString());
+                ps.executeUpdate();
             }
         }
     }
