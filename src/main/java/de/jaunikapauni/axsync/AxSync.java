@@ -5,8 +5,11 @@ import de.jaunikapauni.axsync.listener.PlayerQuitListener;
 import de.jaunikapauni.axsync.manager.DatabaseManager;
 import de.jaunikapauni.axsync.manager.PlayerManager;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -48,6 +51,15 @@ public final class AxSync extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+        for(Player p : Bukkit.getOnlinePlayers()){
+            try {
+                playerManager.setPlayerData(p.getUniqueId(), p.getHealth(), p.getFoodLevel(), p.getGameMode(), p.getSaturation(), p.getRemainingAir(), p.getLevel(), p.getExp(), playerManager.serializeInventory(p.getInventory()), playerManager.serializeInventory(p.getEnderChest()));
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
         databaseManager.close();
     }
 }
