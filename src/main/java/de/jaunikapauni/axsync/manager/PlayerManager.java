@@ -1,6 +1,7 @@
 package de.jaunikapauni.axsync.manager;
 
 import de.jaunikapauni.axsync.AxSync;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -16,6 +17,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Base64;
+import java.util.UUID;
 
 public class PlayerManager {
     AxSync reference;
@@ -23,76 +25,20 @@ public class PlayerManager {
         this.reference = reference;
     }
 
-    public void setPlayerHealth(Player p){
+    public void setPlayerData(UUID uuid, double health, int foodLevel, GameMode gameMode, float saturation, int remainingAir, int level, float exp, String inventory, String enderchest) throws SQLException {
         try(Connection conn = reference.getDatabaseManager().getConnection()){
-            try(PreparedStatement ps = conn.prepareStatement("UPDATE playerdata SET health = ? WHERE uuid = ?")){
-                ps.setDouble(1, p.getHealth());
-                ps.setString(2, p.getUniqueId().toString());
-                ps.executeUpdate();
+            try(PreparedStatement ps = conn.prepareStatement("UPDATE playerdata SET health = ?, foodlevel = ?, gamemode = ?, saturation = ?, airlevel = ?, level = ?, progress = ?, inventory = ?, enderchest = ? WHERE uuid = ?")){
+                ps.setDouble(1, health);
+                ps.setInt(2, foodLevel);
+                ps.setString(3, gameMode.toString());
+                ps.setFloat(4, saturation);
+                ps.setInt(5, remainingAir);
+                ps.setInt(6, level);
+                ps.setFloat(7, exp);
+                ps.setString(8, inventory);
+                ps.setString(9, enderchest);
+                ps.setString(10, uuid.toString());
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void setPlayerFoodLevel(Player p){
-        try(Connection conn = reference.getDatabaseManager().getConnection()){
-            try(PreparedStatement ps = conn.prepareStatement("UPDATE playerdata SET foodlevel = ? WHERE uuid = ?")){
-                ps.setInt(1, p.getFoodLevel());
-                ps.setString(2, p.getUniqueId().toString());
-                ps.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void setPlayerGameMode(Player p){
-        try(Connection conn = reference.getDatabaseManager().getConnection()){
-            try(PreparedStatement ps = conn.prepareStatement("UPDATE playerdata SET gamemode = ? WHERE uuid = ?")){
-                ps.setString(1, p.getGameMode().toString());
-                ps.setString(2, p.getUniqueId().toString());
-                ps.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void setPlayerSaturation(Player p){
-        try(Connection conn = reference.getDatabaseManager().getConnection()){
-            try(PreparedStatement ps = conn.prepareStatement("UPDATE playerdata SET saturation = ? WHERE uuid = ?")){
-                ps.setFloat(1, p.getSaturation());
-                ps.setString(2, p.getUniqueId().toString());
-                ps.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void setPlayerExperience(Player p){
-        try(Connection conn = reference.getDatabaseManager().getConnection()){
-            try(PreparedStatement ps = conn.prepareStatement("UPDATE playerdata SET level = ?, progress = ? WHERE uuid = ?")){
-                ps.setInt(1, p.getLevel());
-                ps.setFloat(2, p.getExp());
-                ps.setString(3, p.getUniqueId().toString());
-                ps.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void setPlayerAirLevel(Player p){
-        try(Connection conn = reference.getDatabaseManager().getConnection()){
-            try(PreparedStatement ps = conn.prepareStatement("UPDATE playerdata SET airlevel = ? WHERE uuid = ?")){
-                ps.setInt(1, p.getRemainingAir());
-                ps.setString(2, p.getUniqueId().toString());
-                ps.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -107,30 +53,6 @@ public class PlayerManager {
         return Base64.getEncoder().encodeToString(baos.toByteArray());
     }
 
-    public void setPlayerInventory(Player p){
-        try(Connection conn = reference.getDatabaseManager().getConnection()){
-            try(PreparedStatement ps = conn.prepareStatement("UPDATE playerdata SET inventory = ? WHERE uuid = ?")){
-                ps.setString(1, serializeInventory(p.getInventory()));
-                ps.setString(2, p.getUniqueId().toString());
-                ps.executeUpdate();
-            }
-        } catch (SQLException | IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void setPlayerEnderChest(Player p){
-        try(Connection conn = reference.getDatabaseManager().getConnection()){
-            try(PreparedStatement ps = conn.prepareStatement("UPDATE playerdata SET enderchest = ? WHERE uuid = ?")){
-                ps.setString(1, serializeInventory(p.getEnderChest()));
-                ps.setString(2, p.getUniqueId().toString());
-                ps.executeUpdate();
-            }
-        } catch (SQLException | IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public void deserializeInventory(Inventory inv, String data){
         byte[] bytes = Base64.getDecoder().decode(data);
         ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
@@ -142,40 +64,6 @@ public class PlayerManager {
             }
             inv.setContents(items);
         } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void loadPlayerInventory(Player p){
-        try(Connection conn = reference.getDatabaseManager().getConnection()){
-            try(PreparedStatement ps = conn.prepareStatement("SELECT inventory FROM playerdata WHERE uuid = ?")){
-                ps.setString(1, p.getUniqueId().toString());
-                ResultSet rs = ps.executeQuery();
-                if(rs.next()){
-                    String data = rs.getString("inventory");
-                    if(data != null){
-                        deserializeInventory(p.getInventory(), data);
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void loadPlayerEnderChest(Player p){
-        try(Connection conn = reference.getDatabaseManager().getConnection()){
-            try(PreparedStatement ps = conn.prepareStatement("SELECT enderchest FROM playerdata WHERE uuid = ?")){
-                ps.setString(1, p.getUniqueId().toString());
-                ResultSet rs = ps.executeQuery();
-                if(rs.next()){
-                    String data = rs.getString("enderchest");
-                    if(data != null){
-                        deserializeInventory(p.getEnderChest(), data);
-                    }
-                }
-            }
-        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
