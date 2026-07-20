@@ -44,7 +44,7 @@ public class DatabaseManager {
 
     public boolean initDatabaseTable1(){
         try(Connection conn = getConnection()){
-            try(PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS playerdata (uuid VARCHAR(255), health DOUBLE, foodlevel INT, gamemode ENUM('SURVIVAL', 'CREATIVE', 'ADVENTURE', 'SPECTATOR'), saturation FLOAT, level INT, progress FLOAT, airlevel INT, inventory TEXT, enderchest TEXT)")){
+            try(PreparedStatement ps = conn.prepareStatement("CREATE TABLE IF NOT EXISTS playerdata (uuid VARCHAR(36) PRIMARY KEY, health DOUBLE, foodlevel INT, gamemode ENUM('SURVIVAL', 'CREATIVE', 'ADVENTURE', 'SPECTATOR'), saturation FLOAT, level INT, progress FLOAT, airlevel INT, inventory LONGTEXT, enderchest LONGTEXT)")){
                 ps.executeUpdate();
                 return true;
             }
