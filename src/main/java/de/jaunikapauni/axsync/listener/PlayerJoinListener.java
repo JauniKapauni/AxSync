@@ -1,6 +1,7 @@
 package de.jaunikapauni.axsync.listener;
 
 import de.jaunikapauni.axsync.AxSync;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
@@ -13,6 +14,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.UUID;
 
 public class PlayerJoinListener implements Listener {
     AxSync reference;
@@ -21,52 +23,68 @@ public class PlayerJoinListener implements Listener {
     }
 
     @EventHandler
-    public void onJoin(PlayerJoinEvent e){
+    public void onJoin(PlayerJoinEvent e) throws IOException {
         e.setJoinMessage(null);
         Player p = e.getPlayer();
-        try(Connection conn = reference.getDatabaseManager().getConnection()){
-            try(PreparedStatement ps = conn.prepareStatement("SELECT * FROM playerdata WHERE uuid = ?")){
-                ps.setString(1, p.getUniqueId().toString());
-                ResultSet rs = ps.executeQuery();
-                if(!rs.next()){
-                    try(PreparedStatement fillTable = conn.prepareStatement("INSERT INTO playerdata (uuid, health, foodlevel, gamemode, saturation, level, progress, airlevel, inventory, enderchest) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){
-                        fillTable.setString(1, p.getUniqueId().toString());
-                        fillTable.setDouble(2, p.getHealth());
-                        fillTable.setInt(3, p.getFoodLevel());
-                        fillTable.setString(4, p.getGameMode().toString());
-                        fillTable.setFloat(5, p.getSaturation());
-                        fillTable.setInt(6, p.getLevel());
-                        fillTable.setFloat(7, p.getExp());
-                        fillTable.setInt(8, p.getRemainingAir());
-                        fillTable.setString(9, reference.getPlayerManager().serializeInventory(p.getInventory()));
-                        fillTable.setString(10, reference.getPlayerManager().serializeInventory(p.getEnderChest()));
-                        fillTable.executeUpdate();
-                        p.sendActionBar(ChatColor.GREEN + "Playerdata were created!");
-                    } catch (IOException ex) {
-                        throw new RuntimeException(ex);
+        UUID uuid = p.getUniqueId();
+        double health = p.getHealth();
+        int foodlevel = p.getFoodLevel();
+        GameMode gameMode = p.getGameMode();
+        float saturation = p.getSaturation();
+        int airlevel = p.getRemainingAir();
+        int level = p.getLevel();
+        float progress = p.getExp();
+        String inventory = reference.getPlayerManager().serializeInventory(p.getInventory());
+        String enderchest = reference.getPlayerManager().serializeInventory(p.getEnderChest());
+        Bukkit.getScheduler().runTaskAsynchronously(reference, () -> {
+            try(Connection conn = reference.getDatabaseManager().getConnection()){
+                try(PreparedStatement ps = conn.prepareStatement("SELECT * FROM playerdata WHERE uuid = ?")){
+                    ps.setString(1, uuid.toString());
+                    ResultSet rs = ps.executeQuery();
+                    if(!rs.next()){
+                        try(PreparedStatement fillTable = conn.prepareStatement("INSERT INTO playerdata (uuid, health, foodlevel, gamemode, saturation, level, progress, airlevel, inventory, enderchest) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")){
+                            fillTable.setString(1, uuid.toString());
+                            fillTable.setDouble(2, health);
+                            fillTable.setInt(3, foodlevel);
+                            fillTable.setString(4,gameMode.toString());
+                            fillTable.setFloat(5, saturation);
+                            fillTable.setInt(6, level);
+                            fillTable.setFloat(7, progress);
+                            fillTable.setInt(8, airlevel);
+                            fillTable.setString(9, inventory);
+                            fillTable.setString(10, enderchest);
+                            fillTable.executeUpdate();
+                            Bukkit.getScheduler().runTask(reference, () -> {
+                                p.sendActionBar(ChatColor.GREEN + "Playerdata were created!");
+                            });
+                        }
+                    } else {
+                        double DBhealth = rs.getDouble("health");
+                        int DBfoodlevel = rs.getInt("foodlevel");
+                        String DBgameMode = rs.getString("gamemode");
+                        float DBsaturation = rs.getFloat("saturation");
+                        int DBlevel = rs.getInt("level");
+                        float DBprogress = rs.getFloat("progress");
+                        int DBairlevel = rs.getInt("airlevel");
+                        String DBinventory = rs.getString("inventory");
+                        String DBenderchest = rs.getString("enderchest");
+                        Bukkit.getScheduler().runTask(reference, () -> {
+                            p.setHealth(DBhealth);
+                            p.setFoodLevel(DBfoodlevel);
+                            p.setGameMode(GameMode.valueOf(DBgameMode));
+                            p.setSaturation(DBsaturation);
+                            p.setLevel(DBlevel);
+                            p.setExp(DBprogress);
+                            p.setRemainingAir(DBairlevel);
+                            p.getInventory().setContents(reference.getPlayerManager().deserializeInventory(DBinventory));
+                            p.getEnderChest().setContents(reference.getPlayerManager().deserializeInventory(DBenderchest));
+                            p.sendActionBar(ChatColor.GREEN + "Your data was loaded!");
+                        });
                     }
-                } else {
-                    double health = rs.getDouble("health");
-                    int foodlevel = rs.getInt("foodlevel");
-                    String gameMode = rs.getString("gamemode");
-                    float saturation = rs.getFloat("saturation");
-                    int level = rs.getInt("level");
-                    float progress = rs.getFloat("progress");
-                    int airlevel = rs.getInt("airlevel");
-                    reference.getPlayerManager().loadPlayerInventory(p);
-                    reference.getPlayerManager().loadPlayerEnderChest(p);
-                    p.setHealth(health);
-                    p.setFoodLevel(foodlevel);
-                    p.setGameMode(GameMode.valueOf(gameMode));
-                    p.setSaturation(saturation);
-                    p.setLevel(level);
-                    p.setExp(progress);
-                    p.setRemainingAir(airlevel);
-                    p.sendActionBar(ChatColor.GREEN + "Your data was loaded!");
                 }
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
             }
-        } catch (SQLException ex) {
-            throw new RuntimeException(ex);
-        }
+        });
     }
 }

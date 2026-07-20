@@ -53,7 +53,7 @@ public class PlayerManager {
         return Base64.getEncoder().encodeToString(baos.toByteArray());
     }
 
-    public void deserializeInventory(Inventory inv, String data){
+    public ItemStack[] deserializeInventory(String data){
         byte[] bytes = Base64.getDecoder().decode(data);
         ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
         try(BukkitObjectInputStream bois = new BukkitObjectInputStream(bais)){
@@ -62,7 +62,7 @@ public class PlayerManager {
             for(int i = 0; i < size; i++){
                 items[i] = (ItemStack) bois.readObject();
             }
-            inv.setContents(items);
+            return items;
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
