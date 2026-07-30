@@ -1,5 +1,7 @@
 package de.jaunikapauni.axsync;
 
+import de.jaunikapauni.axsync.command.EnderChestCommand;
+import de.jaunikapauni.axsync.command.InventoryCommand;
 import de.jaunikapauni.axsync.listener.PlayerJoinListener;
 import de.jaunikapauni.axsync.listener.PlayerQuitListener;
 import de.jaunikapauni.axsync.manager.DatabaseManager;
@@ -39,6 +41,8 @@ public final class AxSync extends JavaPlugin {
         }
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(this), this);
+        getCommand("inventory").setExecutor(new InventoryCommand(this));
+        getCommand("enderchest").setExecutor(new EnderChestCommand(this));
         getLogger().info("");
         getLogger().info("----------------------------------------");
         getLogger().info("Name: " + getName());
