@@ -23,6 +23,9 @@ public class PlayerQuitListener implements Listener {
     public void onQuit(PlayerQuitEvent e) throws IOException {
         e.setQuitMessage(null);
         Player p = e.getPlayer();
+        if(reference.isDisabledWorld(p.getWorld().getName())){
+            return;
+        }
         UUID uuid = p.getUniqueId();
         double health = p.getHealth();
         int foodlevel = p.getFoodLevel();

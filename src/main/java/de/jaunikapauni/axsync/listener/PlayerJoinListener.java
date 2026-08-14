@@ -26,6 +26,9 @@ public class PlayerJoinListener implements Listener {
     public void onJoin(PlayerJoinEvent e) throws IOException {
         e.setJoinMessage(null);
         Player p = e.getPlayer();
+        if(reference.isDisabledWorld(p.getWorld().getName())){
+            return;
+        }
         UUID uuid = p.getUniqueId();
         double health = p.getHealth();
         int foodlevel = p.getFoodLevel();

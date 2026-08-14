@@ -4,3 +4,7 @@ database:
   database: axsync
   username: root
   password:
+
+disabled-worlds:
+  - world1
+  - world2
